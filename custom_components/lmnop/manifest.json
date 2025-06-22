@@ -1,0 +1,12 @@
+{
+  "domain": "lmnop",
+  "name": "LMNOP Notifier",
+  "codeowners": [
+    "@shyndman"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/shyndman/lmnop-notifier",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/shyndman/lmnop-notifier/issues",
+  "version": "0.1.0"
+}

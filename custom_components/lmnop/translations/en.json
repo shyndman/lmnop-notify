@@ -1,0 +1,28 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure Custom Notifier",
+                "description": "Set up your notification service credentials.",
+                "data": {
+                    "name": "Name",
+                    "api_key": "API Key",
+                    "webhook_url": "Webhook URL (optional)"
+                },
+                "data_description": {
+                    "name": "A friendly name for this notification service",
+                    "api_key": "Your notification service API key",
+                    "webhook_url": "Custom webhook URL for notifications (leave empty to use default)"
+                }
+            }
+        },
+        "error": {
+            "auth": "Invalid API key.",
+            "connection": "Unable to connect to the notification service.",
+            "unknown": "Unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "A notification service with this name is already configured."
+        }
+    }
+}
