@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN, ColorMode
+from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
+from homeassistant.components.light import ColorMode
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 
 from .const import ALERT_BRIGHTNESS, ALERT_RGB_COLOR
 
@@ -40,16 +40,15 @@ class LightStateManager:
             if entity_ids:
                 # Group has member entities
                 return entity_ids if isinstance(entity_ids, list) else [entity_ids]
-            else:
-                # It's a single light entity
-                return [light_group_id]
+            # It's a single light entity
+            return [light_group_id]
 
         return []
 
     def _validate_rgb_support(self, entity_ids: list[str]) -> list[str]:
         """Filter entities to only include those that support RGB color."""
         rgb_lights = []
-        
+
         for entity_id in entity_ids:
             state = self.hass.states.get(entity_id)
             if state is None:
@@ -143,7 +142,7 @@ class LightStateManager:
             # Restore each light individually
             for entity_id, saved_state in self._saved_states.items():
                 service_data = {"entity_id": entity_id}
-                
+
                 if saved_state["state"] == "off":
                     # Turn light off
                     await self.hass.services.async_call(

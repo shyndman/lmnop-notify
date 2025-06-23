@@ -126,23 +126,22 @@ class AlertTracker:
         try:
             if save_states:
                 return await self.light_manager.save_light_states_and_set_alert(light_group)
-            else:
-                # Just set to alert mode without saving states (for startup recovery)
-                entity_ids = self.light_manager._get_light_entities(light_group)
-                rgb_lights = self.light_manager._validate_rgb_support(entity_ids)
-                if rgb_lights:
-                    await self.hass.services.async_call(
-                        "light",
-                        "turn_on",
-                        {
-                            "entity_id": rgb_lights,
-                            "rgb_color": [255, 0, 0],
-                            "brightness": 255,
-                        },
-                        blocking=True,
-                    )
-                    self.light_manager._alert_active = True
-                    return True
+            # Just set to alert mode without saving states (for startup recovery)
+            entity_ids = self.light_manager._get_light_entities(light_group)
+            rgb_lights = self.light_manager._validate_rgb_support(entity_ids)
+            if rgb_lights:
+                await self.hass.services.async_call(
+                    "light",
+                    "turn_on",
+                    {
+                        "entity_id": rgb_lights,
+                        "rgb_color": [255, 0, 0],
+                        "brightness": 255,
+                    },
+                    blocking=True,
+                )
+                self.light_manager._alert_active = True
+                return True
             return False
         except Exception as err:
             _LOGGER.error("Failed to activate light alert: %s", err)
@@ -210,11 +209,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
     # Unload platforms
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    
+
     # Clean up stored data
     if unload_ok and entry.entry_id in hass.data.get(DOMAIN, {}):
         entry_data = hass.data[DOMAIN].pop(entry.entry_id)
-        
+
         # Clear light alert state if active
         if "light_manager" in entry_data:
             light_manager = entry_data["light_manager"]

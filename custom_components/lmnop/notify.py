@@ -80,15 +80,15 @@ class LmnopNotifyEntity(NotifyEntity):
         """Parse priority from title prefix and return (priority, clean_title)."""
         if not title:
             return PRIORITY_REGULAR, title
-        
+
         # Match [priority] at the start of title
-        match = re.match(r'^\[(\w+)\]\s*(.*)$', title)
+        match = re.match(r"^\[(\w+)\]\s*(.*)$", title)
         if not match:
             return PRIORITY_REGULAR, title
-        
+
         priority_str = match.group(1).lower()
         clean_title = match.group(2) or None
-        
+
         # Validate priority
         valid_priorities = [
             PRIORITY_CRITICAL,
@@ -97,15 +97,14 @@ class LmnopNotifyEntity(NotifyEntity):
             PRIORITY_LOW,
             PRIORITY_DEBUG,
         ]
-        
+
         if priority_str in valid_priorities:
             return priority_str, clean_title
-        else:
-            _LOGGER.warning(
-                "Invalid priority '[%s]' in title, using REGULAR priority", 
-                priority_str
-            )
-            return PRIORITY_REGULAR, clean_title
+        _LOGGER.warning(
+            "Invalid priority '[%s]' in title, using REGULAR priority",
+            priority_str
+        )
+        return PRIORITY_REGULAR, clean_title
 
     async def async_send_message(
         self, message: str, title: str | None = None, **kwargs

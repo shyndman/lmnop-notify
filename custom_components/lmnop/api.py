@@ -38,13 +38,13 @@ class LmnopApiClient:
             {
                 "priority": notification_data.get("priority"),
                 "title": notification_data.get("title"),
-                "message": notification_data.get("message", "")[:100] + "..." 
-                if len(notification_data.get("message", "")) > 100 
+                "message": notification_data.get("message", "")[:100] + "..."
+                if len(notification_data.get("message", "")) > 100
                 else notification_data.get("message", ""),
                 "notification_id": notification_data.get("notification_id"),
             }
         )
-        
+
         # Return a mock successful response
         return {"success": True, "notification_id": notification_data.get("notification_id")}
 
