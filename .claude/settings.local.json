@@ -5,7 +5,8 @@
       "WebFetch(domain:developers.home-assistant.io)",
       "Bash(rm:*)",
       "Bash(./scripts/lint:*)",
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
