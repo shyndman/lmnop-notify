@@ -17,7 +17,7 @@ ATTR_PRIORITY: Final = "priority"
 # Priority levels
 PRIORITY_CRITICAL: Final = "critical"  # Security alerts, system failures, emergencies
 PRIORITY_HIGH: Final = "high"  # Important but not emergency situations
-PRIORITY_MEDIUM: Final = "medium"  # Regular household notifications
+PRIORITY_REGULAR: Final = "regular"  # Regular household notifications
 PRIORITY_LOW: Final = "low"  # Informational updates
 PRIORITY_DEBUG: Final = "debug"  # System/technical information
 

@@ -6,7 +6,8 @@
       "Bash(rm:*)",
       "Bash(./scripts/lint:*)",
       "WebFetch(domain:docs.anthropic.com)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
