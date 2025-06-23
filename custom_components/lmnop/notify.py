@@ -101,8 +101,7 @@ class LmnopNotifyEntity(NotifyEntity):
         if priority_str in valid_priorities:
             return priority_str, clean_title
         _LOGGER.warning(
-            "Invalid priority '[%s]' in title, using REGULAR priority",
-            priority_str
+            "Invalid priority '[%s]' in title, using REGULAR priority", priority_str
         )
         return PRIORITY_REGULAR, clean_title
 

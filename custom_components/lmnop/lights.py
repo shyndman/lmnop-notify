@@ -155,10 +155,24 @@ class LightStateManager:
                     # Turn light on with previous settings
                     if "brightness" in saved_state:
                         service_data["brightness"] = saved_state["brightness"]
-                    if "rgb_color" in saved_state:
-                        service_data["rgb_color"] = saved_state["rgb_color"]
+
+                    # Set color attributes - prioritize color_temp over rgb_color to avoid conflicts
+                    # (color_temp is more commonly used for everyday lighting)
                     if "color_temp" in saved_state:
                         service_data["color_temp"] = saved_state["color_temp"]
+                        _LOGGER.debug(
+                            "Restoring %s with color_temp: %s",
+                            entity_id,
+                            saved_state["color_temp"],
+                        )
+                    elif "rgb_color" in saved_state:
+                        service_data["rgb_color"] = saved_state["rgb_color"]
+                        _LOGGER.debug(
+                            "Restoring %s with rgb_color: %s",
+                            entity_id,
+                            saved_state["rgb_color"],
+                        )
+
                     if "effect" in saved_state:
                         service_data["effect"] = saved_state["effect"]
 
@@ -169,7 +183,9 @@ class LightStateManager:
                         blocking=True,
                     )
 
-            _LOGGER.info("Restored %d lights to previous states", len(self._saved_states))
+            _LOGGER.info(
+                "Restored %d lights to previous states", len(self._saved_states)
+            )
             self._saved_states = {}
             self._alert_active = False
             return True

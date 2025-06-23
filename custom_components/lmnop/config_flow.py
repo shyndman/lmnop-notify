@@ -62,4 +62,3 @@ class LmnopFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             ),
         )
-

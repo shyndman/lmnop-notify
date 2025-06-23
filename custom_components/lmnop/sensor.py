@@ -62,5 +62,3 @@ class LmnopAlertStatusSensor(SensorEntity):
     def available(self) -> bool:
         """Return if entity is available."""
         return True
-
-

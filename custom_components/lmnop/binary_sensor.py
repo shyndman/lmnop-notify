@@ -30,7 +30,9 @@ async def async_setup_entry(
     name = entry.data.get(CONF_NAME, DEFAULT_NAME)
 
     entities = [
-        LmnopLightsInAlertBinarySensor(alert_tracker, light_manager, name, entry.entry_id),
+        LmnopLightsInAlertBinarySensor(
+            alert_tracker, light_manager, name, entry.entry_id
+        ),
     ]
 
     async_add_entities(entities)

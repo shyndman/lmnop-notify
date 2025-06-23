@@ -78,7 +78,7 @@ class AlertTracker:
                 if light_group and not self.light_manager.is_alert_active:
                     _LOGGER.info(
                         "Found %d existing alerts, activating light alert mode",
-                        len(self._active_alerts)
+                        len(self._active_alerts),
                     )
                     # Don't save states again, just set to alert mode
                     await self._activate_light_alert(light_group, save_states=False)
@@ -125,7 +125,9 @@ class AlertTracker:
         """Activate light alert mode."""
         try:
             if save_states:
-                return await self.light_manager.save_light_states_and_set_alert(light_group)
+                return await self.light_manager.save_light_states_and_set_alert(
+                    light_group
+                )
             # Just set to alert mode without saving states (for startup recovery)
             entity_ids = self.light_manager._get_light_entities(light_group)
             rgb_lights = self.light_manager._validate_rgb_support(entity_ids)
@@ -226,4 +228,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload config entry."""
     await hass.config_entries.async_reload(entry.entry_id)
-

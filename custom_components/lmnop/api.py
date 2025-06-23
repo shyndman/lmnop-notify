@@ -42,9 +42,11 @@ class LmnopApiClient:
                 if len(notification_data.get("message", "")) > 100
                 else notification_data.get("message", ""),
                 "notification_id": notification_data.get("notification_id"),
-            }
+            },
         )
 
         # Return a mock successful response
-        return {"success": True, "notification_id": notification_data.get("notification_id")}
-
+        return {
+            "success": True,
+            "notification_id": notification_data.get("notification_id"),
+        }
