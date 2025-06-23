@@ -16,6 +16,7 @@ from homeassistant.util import dt as dt_util
 
 from .api import LmnopApiClient
 from .const import (
+    ALERT_PRIORITIES,
     ATTR_PRIORITY,
     DEFAULT_NAME,
     DOMAIN,
@@ -35,12 +36,15 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up notify entity."""
-    api_client: LmnopApiClient = hass.data[DOMAIN][entry.entry_id]
+    entry_data = hass.data[DOMAIN][entry.entry_id]
+    api_client = entry_data["api_client"]
+    alert_tracker = entry_data["alert_tracker"]
     name = entry.data.get(CONF_NAME, DEFAULT_NAME)
     
     async_add_entities([LmnopNotifyEntity(
         hass=hass,
         api_client=api_client,
+        alert_tracker=alert_tracker,
         name=name,
         unique_id=entry.entry_id,
     )])
@@ -55,18 +59,27 @@ class LmnopNotifyEntity(NotifyEntity):
         self,
         hass: HomeAssistant,
         api_client: LmnopApiClient,
+        alert_tracker: Any,
         name: str,
         unique_id: str,
     ) -> None:
         """Initialize the notification entity."""
         self._api_client = api_client
+        self._alert_tracker = alert_tracker
         self._attr_name = name
         self._attr_unique_id = unique_id
 
-    async def async_send_message(self, message: str, title: str | None = None) -> None:
+    async def async_send_message(self, message: str, title: str | None = None, **kwargs) -> None:
         """Send a message."""
-        # Default priority to MEDIUM for now
-        priority = PRIORITY_MEDIUM
+        # Extract priority from service call data (if provided)
+        data = kwargs.get("data", {})
+        priority = data.get(ATTR_PRIORITY, PRIORITY_MEDIUM)
+        
+        # Validate priority
+        valid_priorities = [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_DEBUG]
+        if priority not in valid_priorities:
+            _LOGGER.warning("Invalid priority '%s', using MEDIUM", priority)
+            priority = PRIORITY_MEDIUM
 
         # Create unique notification ID for persistent notification tracking
         notification_id = f"{DOMAIN}_{self._attr_unique_id}_{dt_util.utcnow().timestamp()}"
@@ -95,6 +108,11 @@ class LmnopNotifyEntity(NotifyEntity):
                 title=title or f"{self._attr_name} Notification",
                 notification_id=notification_id,
             )
+            
+            # Handle light alerts for HIGH/CRITICAL priorities
+            if priority in ALERT_PRIORITIES:
+                await self._alert_tracker.add_alert(notification_id, priority)
+                _LOGGER.info("Added light alert for %s priority notification", priority)
             
             _LOGGER.debug("Notification sent successfully with ID: %s", notification_id)
             
