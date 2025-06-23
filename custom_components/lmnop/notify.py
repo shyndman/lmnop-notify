@@ -64,7 +64,7 @@ class LmnopNotifyEntity(NotifyEntity):
 
     def __init__(
         self,
-        hass: HomeAssistant,
+        hass: HomeAssistant,  # noqa: ARG002
         api_client: LmnopApiClient,
         alert_tracker: Any,
         name: str,
@@ -106,7 +106,7 @@ class LmnopNotifyEntity(NotifyEntity):
         return PRIORITY_REGULAR, clean_title
 
     async def async_send_message(
-        self, message: str, title: str | None = None, **kwargs
+        self, message: str, title: str | None = None, **kwargs: Any  # noqa: ARG002
     ) -> None:
         """Send a message."""
         # Parse priority from title prefix
@@ -122,7 +122,7 @@ class LmnopNotifyEntity(NotifyEntity):
             "Sending notification: priority=%s, title=%s, message=%s",
             priority,
             title,
-            message[:50] + "..." if len(message) > 50 else message,
+            message,
         )
 
         try:

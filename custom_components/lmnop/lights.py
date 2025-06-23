@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
 from homeassistant.components.light import ColorMode
-from homeassistant.core import HomeAssistant
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
 
 from .const import ALERT_BRIGHTNESS, ALERT_RGB_COLOR
 
@@ -23,7 +25,7 @@ class LightStateManager:
         self._saved_states: dict[str, dict[str, Any]] = {}
         self._alert_active = False
 
-    def _get_light_entities(self, light_group_id: str) -> list[str]:
+    def get_light_entities(self, light_group_id: str) -> list[str]:
         """Get individual light entities from a light group."""
         if not light_group_id:
             return []
@@ -45,7 +47,7 @@ class LightStateManager:
 
         return []
 
-    def _validate_rgb_support(self, entity_ids: list[str]) -> list[str]:
+    def validate_rgb_support(self, entity_ids: list[str]) -> list[str]:
         """Filter entities to only include those that support RGB color."""
         rgb_lights = []
 
@@ -90,12 +92,12 @@ class LightStateManager:
             _LOGGER.debug("Alert already active, not saving states again")
             return False
 
-        entity_ids = self._get_light_entities(light_group_id)
+        entity_ids = self.get_light_entities(light_group_id)
         if not entity_ids:
             _LOGGER.warning("No light entities found for group %s", light_group_id)
             return False
 
-        rgb_lights = self._validate_rgb_support(entity_ids)
+        rgb_lights = self.validate_rgb_support(entity_ids)
         if not rgb_lights:
             _LOGGER.warning("No RGB-capable lights found in group %s", light_group_id)
             return False
@@ -125,12 +127,12 @@ class LightStateManager:
             )
             self._alert_active = True
             _LOGGER.info("Set %d lights to alert mode", len(rgb_lights))
-            return True
-
-        except Exception as err:
-            _LOGGER.error("Failed to set lights to alert mode: %s", err)
+        except Exception:
+            _LOGGER.exception("Failed to set lights to alert mode")
             self._saved_states = {}
             return False
+        else:
+            return True
 
     async def restore_light_states(self) -> bool:
         """Restore lights to their previous states."""
@@ -156,7 +158,8 @@ class LightStateManager:
                     if "brightness" in saved_state:
                         service_data["brightness"] = saved_state["brightness"]
 
-                    # Set color attributes - prioritize color_temp over rgb_color to avoid conflicts
+                    # Set color attributes - prioritize color_temp over rgb_color
+                    # to avoid conflicts
                     # (color_temp is more commonly used for everyday lighting)
                     if "color_temp" in saved_state:
                         service_data["color_temp"] = saved_state["color_temp"]
@@ -188,11 +191,15 @@ class LightStateManager:
             )
             self._saved_states = {}
             self._alert_active = False
+        except Exception:
+            _LOGGER.exception("Failed to restore light states")
+            return False
+        else:
             return True
 
-        except Exception as err:
-            _LOGGER.error("Failed to restore light states: %s", err)
-            return False
+    def set_alert_mode(self, _rgb_lights: list[str]) -> None:
+        """Set lights to alert mode without saving states."""
+        self._alert_active = True
 
     @property
     def is_alert_active(self) -> bool:

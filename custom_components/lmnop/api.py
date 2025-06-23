@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import aiohttp
+if TYPE_CHECKING:
+    import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
+
+# Maximum message length for log truncation
+MAX_MESSAGE_LENGTH = 100
 
 
 class LmnopApiClientError(Exception):
@@ -20,14 +24,14 @@ class LmnopApiClient:
     def __init__(
         self,
         api_key: str,
-        session: aiohttp.ClientSession,
+        session: aiohttp.ClientSession,  # type: ignore[name-defined]
     ) -> None:
         """Initialize the API client."""
         self._api_key = api_key
         self._session = session
 
     async def validate_credentials(self) -> bool:
-        """Validate the API credentials - always succeeds for barebones implementation."""
+        """Validate API credentials - always succeeds for barebones implementation."""
         _LOGGER.debug("Validating credentials (barebones - always succeeds)")
         return True
 
@@ -38,9 +42,11 @@ class LmnopApiClient:
             {
                 "priority": notification_data.get("priority"),
                 "title": notification_data.get("title"),
-                "message": notification_data.get("message", "")[:100] + "..."
-                if len(notification_data.get("message", "")) > 100
-                else notification_data.get("message", ""),
+                "message": (
+                    notification_data.get("message", "")[:MAX_MESSAGE_LENGTH] + "..."
+                    if len(notification_data.get("message", "")) > MAX_MESSAGE_LENGTH
+                    else notification_data.get("message", "")
+                ),
                 "notification_id": notification_data.get("notification_id"),
             },
         )

@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DEFAULT_NAME, DOMAIN
 
@@ -36,7 +39,9 @@ async def async_setup_entry(
 class LmnopAlertStatusSensor(SensorEntity):
     """Sensor showing LMNOP alert status."""
 
-    def __init__(self, alert_tracker, light_manager, name: str, unique_id: str) -> None:
+    def __init__(
+        self, alert_tracker: Any, light_manager: Any, name: str, unique_id: str
+    ) -> None:
         """Initialize the alert status sensor."""
         self._alert_tracker = alert_tracker
         self._light_manager = light_manager

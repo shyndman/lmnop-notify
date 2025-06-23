@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_API_KEY, CONF_NAME
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
+
+if TYPE_CHECKING:
+    from homeassistant.data_entry_flow import FlowResult
 
 from .const import CONF_ALERT_LIGHT_GROUP, DEFAULT_NAME, DOMAIN
 

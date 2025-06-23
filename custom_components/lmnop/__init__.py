@@ -8,16 +8,18 @@ https://github.com/shyndman/lmnop-notifier
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 from homeassistant.components import persistent_notification as pn
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.storage import Store
-from homeassistant.helpers.typing import ConfigType
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.helpers.typing import ConfigType
 
 from .api import LmnopApiClient
 from .const import ALERT_PRIORITIES, CONF_ALERT_LIGHT_GROUP, DOMAIN
@@ -87,8 +89,8 @@ class AlertTracker:
             if saved_alerts != self._active_alerts:
                 await self.save_alert_data()
 
-        except Exception as err:
-            _LOGGER.error("Error checking existing notifications: %s", err)
+        except Exception:
+            _LOGGER.exception("Error checking existing notifications")
 
     async def add_alert(self, notification_id: str, priority: str) -> bool:
         """Add a HIGH/CRITICAL alert and potentially activate lights."""
@@ -121,7 +123,9 @@ class AlertTracker:
 
         return True
 
-    async def _activate_light_alert(self, light_group: str, save_states: bool) -> bool:
+    async def _activate_light_alert(
+        self, light_group: str, *, save_states: bool
+    ) -> bool:
         """Activate light alert mode."""
         try:
             if save_states:
@@ -129,25 +133,26 @@ class AlertTracker:
                     light_group
                 )
             # Just set to alert mode without saving states (for startup recovery)
-            entity_ids = self.light_manager._get_light_entities(light_group)
-            rgb_lights = self.light_manager._validate_rgb_support(entity_ids)
-            if rgb_lights:
-                await self.hass.services.async_call(
-                    "light",
-                    "turn_on",
-                    {
-                        "entity_id": rgb_lights,
-                        "rgb_color": [255, 0, 0],
-                        "brightness": 255,
-                    },
-                    blocking=True,
-                )
-                self.light_manager._alert_active = True
-                return True
+            entity_ids = self.light_manager.get_light_entities(light_group)
+            rgb_lights = self.light_manager.validate_rgb_support(entity_ids)
+            if not rgb_lights:
+                return False
+            await self.hass.services.async_call(
+                "light",
+                "turn_on",
+                {
+                    "entity_id": rgb_lights,
+                    "rgb_color": [255, 0, 0],
+                    "brightness": 255,
+                },
+                blocking=True,
+            )
+            self.light_manager.set_alert_mode(rgb_lights)
+        except Exception:
+            _LOGGER.exception("Failed to activate light alert")
             return False
-        except Exception as err:
-            _LOGGER.error("Failed to activate light alert: %s", err)
-            return False
+        else:
+            return True
 
     @callback
     def handle_notification_update(self, update_type: str, notifications: dict) -> None:
@@ -156,7 +161,9 @@ class AlertTracker:
             for notification_id in notifications:
                 if notification_id.startswith(f"{DOMAIN}_"):
                     # Schedule the async operation
-                    self.hass.async_create_task(self.remove_alert(notification_id))
+                    self.hass.async_create_task(
+                        self.remove_alert(notification_id), eager_start=True
+                    )
 
     @property
     def active_alert_count(self) -> int:
@@ -169,7 +176,7 @@ class AlertTracker:
         return len(self._active_alerts) > 0
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+async def async_setup(_hass: HomeAssistant, _config: ConfigType) -> bool:
     """Set up the LMNOP component."""
     return True
 
