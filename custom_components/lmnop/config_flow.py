@@ -10,7 +10,7 @@ from homeassistant.const import CONF_API_KEY, CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
-from .const import DEFAULT_NAME, DOMAIN
+from .const import CONF_ALERT_LIGHT_GROUP, DEFAULT_NAME, DOMAIN
 
 
 class LmnopFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -50,6 +50,13 @@ class LmnopFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_ALERT_LIGHT_GROUP,
+                    ): selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain="light",
                         ),
                     ),
                 },
