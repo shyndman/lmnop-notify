@@ -11,7 +11,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from homeassistant.components import persistent_notification as pn
-from homeassistant.const import CONF_API_KEY, Platform
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -185,7 +185,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up LMNOP from a config entry."""
     # Initialize the API client
     api_client = LmnopApiClient(
-        api_key=entry.data[CONF_API_KEY],
         session=async_get_clientsession(hass),
     )
 

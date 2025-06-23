@@ -23,11 +23,9 @@ class LmnopApiClient:
 
     def __init__(
         self,
-        api_key: str,
         session: aiohttp.ClientSession,  # type: ignore[name-defined]
     ) -> None:
         """Initialize the API client."""
-        self._api_key = api_key
         self._session = session
 
     async def validate_credentials(self) -> bool:
