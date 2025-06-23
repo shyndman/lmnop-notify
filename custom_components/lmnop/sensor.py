@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+    from . import AlertTracker
+    from .lights import LightStateManager
+
 from .const import DEFAULT_NAME, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,7 +43,11 @@ class LmnopAlertStatusSensor(SensorEntity):
     """Sensor showing LMNOP alert status."""
 
     def __init__(
-        self, alert_tracker: Any, light_manager: Any, name: str, unique_id: str
+        self,
+        alert_tracker: AlertTracker,
+        light_manager: LightStateManager,
+        name: str,
+        unique_id: str,
     ) -> None:
         """Initialize the alert status sensor."""
         self._alert_tracker = alert_tracker
@@ -55,7 +62,7 @@ class LmnopAlertStatusSensor(SensorEntity):
         return "Active" if self._alert_tracker.is_alert_active else "Clear"
 
     @property
-    def extra_state_attributes(self) -> dict[str, any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional state attributes."""
         return {
             "active_alert_count": self._alert_tracker.active_alert_count,

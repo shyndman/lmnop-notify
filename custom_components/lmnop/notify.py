@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+    from . import AlertTracker
     from .api import LmnopApiClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,7 +67,7 @@ class LmnopNotifyEntity(NotifyEntity):
         self,
         hass: HomeAssistant,  # noqa: ARG002
         api_client: LmnopApiClient,
-        alert_tracker: Any,
+        alert_tracker: AlertTracker,
         name: str,
         unique_id: str,
     ) -> None:
@@ -106,7 +107,10 @@ class LmnopNotifyEntity(NotifyEntity):
         return PRIORITY_REGULAR, clean_title
 
     async def async_send_message(
-        self, message: str, title: str | None = None, **kwargs: Any  # noqa: ARG002
+        self,
+        message: str,
+        title: str | None = None,
+        **kwargs: Any,  # noqa: ARG002
     ) -> None:
         """Send a message."""
         # Parse priority from title prefix
