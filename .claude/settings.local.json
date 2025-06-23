@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.home-assistant.io)",
+      "WebFetch(domain:developers.home-assistant.io)",
+      "Bash(rm:*)",
+      "Bash(./scripts/lint:*)"
+    ],
+    "deny": []
+  }
+}
